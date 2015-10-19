@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace cis237assignment3
         private const int DEFAULT_STATUS_LINE_START = 22;       // Default line to start drawing the "status box"
         private const int WINDOW_HEIGHT = 26;
         private const int WINDOW_WIDTH = 100;
-        private const int MINIMUM_SPACES_BETWEEN_ELEMENT = 3;
+        private const int MINIMUM_SPACES_BETWEEN_ELEMENT = 3; 
 
         #endregion
 
@@ -165,15 +166,23 @@ namespace cis237assignment3
         /* PRINTS A GROUP OF DRAWABLES AND ALLOWS THE USER TO MANIPULATE THEM */
         public static void HandleDrawableGroup(ref DrawableElement[] drawableElements, ConsoleColor highlightBackColor, ConsoleColor highlightTextColor)
         {
-            // First, resize the array and add a submit button to this drawable elements collection
-            #region Resize Array and Add Submit Button
-            int newLargerSize = drawableElements.Length + 1;                                                                        // Holds new larger size
-            Array.Resize<DrawableElement>(ref drawableElements, newLargerSize);                                                     // Resize the array
-            drawableElements[drawableElements.GetUpperBound(0)] = new Button(DrawableElement.EDisplaySetting.BLOCK, "Submit");      // Add the element at the end of the array
-            #endregion
-
-            // Holds the index of the currently focused on drawableElement (starts at 0)
+            
+            // Holds the index of the currently focused on drawableElement
             int currentlySelectedIndex = 0;
+
+            // Get the first selectable drawable element in this group
+            for (int index = 0; index <= drawableElements.GetUpperBound(0); index++)
+            {
+                // If this element is selectable
+                if (drawableElements[index].IsSelectable)
+                {
+                    // Set the current index to the found one
+                    currentlySelectedIndex = index;
+
+                    // Break out of this for loop
+                    break;
+                }
+            }
 
             // Holds the left and top coordinates respective to each drawableElement
             int[] cursorLeftCoordinate = new int[drawableElements.Length];
@@ -183,10 +192,13 @@ namespace cis237assignment3
             setCoordinates(drawableElements, ref cursorLeftCoordinate, ref cursorTopCoordinate, 1, 1);
 
             // Draw the elements.
-            drawElements(drawableElements, cursorLeftCoordinate, cursorTopCoordinate);
+            drawElements(drawableElements, cursorLeftCoordinate, cursorTopCoordinate, currentlySelectedIndex);
+
+            // Keeps loop going
+            bool keepLooping = true;
 
             // Get a keystroke and apply 
-            while (true)
+            while (keepLooping)
             {
                 // Wait until the user hits a key
                 ConsoleKey keyHitByUser = Console.ReadKey(true).Key;
@@ -197,15 +209,31 @@ namespace cis237assignment3
                 if (keyHitByUser == ConsoleKey.RightArrow)
                 {
 
+                    // Go to the position where the current element sits
+                    Console.SetCursorPosition(cursorLeftCoordinate[currentlySelectedIndex], cursorTopCoordinate[currentlySelectedIndex]);
+
                     // Get the NEXT valid selectable element, starting with the one that is currently selected
 
-                    // The previous currentlySelectedIndex was the index they were just on. Increment by one to start off.
-                    int index = currentlySelectedIndex + 1;
+                    // The previous currentlySelectedIndex was the index they were just on.
+                    int index;
+
+                    // If the new index will be more than the upper bound of the array
+                    if (currentlySelectedIndex + 1 > drawableElements.GetUpperBound(0))
+                    {
+                        // Reset it back
+                        index = 0;
+                    }
+                    else
+                    {
+                        index = currentlySelectedIndex + 1;
+                    }
+
                     bool nextIndexFound = false;
 
+                    // While the index is still less than the array, and the next selectable index has yet to be found
                     while (index <= drawableElements.GetUpperBound(0) && nextIndexFound == false)
                     {
-
+                        Debug.WriteLine("Upper bound of drawableElements: " + drawableElements.GetUpperBound(0));
                         // Is this element selectable?
                         if (drawableElements[index].IsSelectable)
                         {
@@ -217,13 +245,12 @@ namespace cis237assignment3
                         }
                         else
                         {
-                            // The element wasn't selectable.
 
-                            // Is the current index we just looked at equal to the max index of the drawable elements?
+                            // Are we looking at the last element in the array?
                             if (index == drawableElements.GetUpperBound(0))
                             {
-                                // Reset the index (will be 0 in this case, just used GetLowerBound to convey the idea of what is happening)
-                                index = drawableElements.GetLowerBound(0);
+                                // Reset the index
+                                index = 0;
                             }
                             else
                             {
@@ -311,57 +338,109 @@ namespace cis237assignment3
 
                 #region Handle Enter Button
 
-                // Is this a button?
-                if (drawableElements[currentlySelectedIndex] is Button)
+                if (keyHitByUser == ConsoleKey.Enter)
                 {
-                    // Activate it!
-                    Button tempButton = (Button)drawableElements[currentlySelectedIndex];
-                    tempButton.PerformClick();
-                }
+                    // Is this a button?
+                    if (drawableElements[currentlySelectedIndex] is Button)
+                    {
+                        // Activate it!
+                        Button tempButton = (Button)drawableElements[currentlySelectedIndex];
+                        tempButton.PerformClick();
 
+                        // Is it the Submit button?
+                        if (tempButton.Label.ToLower() == "submit")
+                        {
+                            // Get out of here
+                            keepLooping = false;
+                        }
+                    }
+                }
                 #endregion
 
+                ClearScreen();
+                drawElements(drawableElements, cursorLeftCoordinate, cursorTopCoordinate, currentlySelectedIndex);
+            }
+        }
+
+        private static void drawElement(DrawableElement element, int leftCoordinate, int topCoordinate, bool drawHighlighted)
+        {
+
+            // Set the cursor position to this element's respective x and y coordinates
+            Console.SetCursorPosition(leftCoordinate, topCoordinate);
+
+            // Handle drawing each element differently
+
+            // If it's a spacer
+            if (element is Spacer)
+            {
+                // Don't do anything! Spacers have nothing to write
+            }
+            else if (element is Label)
+            {
+                // It's a label - unbox it
+                Label tempLabel = (Label)element;
+
+                if (drawHighlighted)
+                {
+                    HighlighterPrint(tempLabel.Label);
+                }
+                else
+                {
+                    Console.Write(tempLabel.Label);
+                }
+            }
+            else if (element is SelectionBox)
+            {
+                // It's a selection box - unbox it
+                SelectionBox tempSelectionBox = (SelectionBox)element;
+
+                // Draw the label/title of this selection box
+                Console.Write(tempSelectionBox.Label + " ");
+
+                if (drawHighlighted)
+                {
+                    HighlighterPrint(tempSelectionBox.Choices[tempSelectionBox.SelectedChoiceIndex]);
+                }
+                else
+                {
+                    Console.Write(tempSelectionBox.Choices[tempSelectionBox.SelectedChoiceIndex]);
+                }
+            }
+            else if (element is Button)
+            {
+                // It's a button - unbox it
+                Button tempButton = (Button)element;
+
+                if (drawHighlighted)
+                {
+                    HighlighterPrint(tempButton.Label);
+                }
+                else
+                {
+                    Console.Write(tempButton.Label);
+                }
             }
         }
 
         /* DRAWS A COLLECTION OF DRAWABLE ELEMENTS */
-        private static void drawElements(DrawableElement[] drawableElements, int[] cursorLeftCoordinate, int[] cursorTopCoordinate)
+        private static void drawElements(DrawableElement[] drawableElements, int[] cursorLeftCoordinate, int[] cursorTopCoordinate, int currentlySelectedIndex)
         {
             // Start drawing the elements
 
             // For every DrawableElement in the drawableElements array
-            for (int index = 0; index < drawableElements.GetUpperBound(0); index++)
+            for (int index = 0; index <= drawableElements.GetUpperBound(0); index++)
             {
-                // Set the cursor position to this element's respective x and y coordinates
-                Console.SetCursorPosition(cursorLeftCoordinate[index], cursorTopCoordinate[index]);
+                bool drawHighlighted = false;
 
-                // Handle drawing each element differently
-
-                // If it's a spacer
-                if (drawableElements[index] is Spacer)
+                // If the current index is the one that should be selected, then this one should be drawn highlighted
+                if (index == currentlySelectedIndex)
                 {
-                    // Don't do anything! Spacers have nothing to write
+                    drawHighlighted = true;
                 }
-                else if (drawableElements[index] is Label)
-                {
-                    // It's a label - unbox it
-                    Label tempLabel = (Label)drawableElements[index];
 
-                    // Print out the label
-                    Console.Write(tempLabel.Label);
-                }
-                else if (drawableElements[index] is SelectionBox)
-                {
-                    // It's a selection box - unbox it
-                    SelectionBox tempSelectionBox = (SelectionBox)drawableElements[index];
-
-                    // Print out the selection box's label and selected choice
-                    Console.Write(tempSelectionBox.Label + " " + tempSelectionBox.Choices[tempSelectionBox.SelectedChoiceIndex]);
-                }
+                // Draw the element
+                drawElement(drawableElements[index], cursorLeftCoordinate[index], cursorTopCoordinate[index], drawHighlighted);
             }
-
-            Console.ReadKey(true);
-
         }
 
         // Sets the coordinates that should be used to draw each element 

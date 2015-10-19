@@ -122,11 +122,7 @@ namespace cis237assignment3
                 new SelectionBox(DrawableElement.EDisplaySetting.INLINE, "Color:", Enum.GetNames(typeof(Droid.DroidColor))),
                 new SelectionBox(DrawableElement.EDisplaySetting.INLINE, "Model:", Enum.GetNames(typeof(Droid.DroidModel))),
                 new Spacer(1),
-                new Label(DrawableElement.EDisplaySetting.INLINE, "This is a test"),
-                new Label(DrawableElement.EDisplaySetting.INLINE, "This is a test"),
-                new Label(DrawableElement.EDisplaySetting.INLINE, "This is a test"),
-                new Label(DrawableElement.EDisplaySetting.INLINE, "This is a test"),
-                new Label(DrawableElement.EDisplaySetting.INLINE, "This is a test")
+                new Button(DrawableElement.EDisplaySetting.BLOCK, "Submit")
             };
         }
 
