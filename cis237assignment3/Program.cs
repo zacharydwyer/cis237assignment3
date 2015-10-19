@@ -11,37 +11,13 @@ namespace cis237assignment3
     class Program
     {
 
-        public static List<Material> MaterialsList = new List<Material>();      // List that holds all of the valid materials available to build a droid with
-        public static List<Droid> DroidList = new List<Droid>();                // Holds the list of droids
+        // All of these lists are populated in methods called by main
+        public static List<Material> MaterialsList = new List<Material>();                              // List that holds all of the valid materials available to build a droid with
+        public static List<Droid> DroidList = new List<Droid>();                                        // Holds the list of droids
         public static string[] MenuSelections = { "Add new droid", "List droids", "Exit program" };
 
         // Elements representing a general droid submenu
-        public static DrawableElement[] GeneralDroidMenu = {
-                                                               new Label(DrawableElement.EDisplaySetting.BLOCK, "DROID CONFIGURATION MENU"),
-                                                               new Label(DrawableElement.EDisplaySetting.BLOCK, "Use the left and right keys to navigate, and the up and down keys to choose"),
-                                                               new Spacer(),
-                                                               new Label(DrawableElement.EDisplaySetting.BLOCK, "General Droid Configuration"),
-                                                               new Spacer(),
-                                                               new SelectionBox(DrawableElement.EDisplaySetting.INLINE, "Material:", convertMaterialsListToStringArray(MaterialsList)),
-                                                               new SelectionBox(DrawableElement.EDisplaySetting.INLINE, "Color:", Enum.GetNames(typeof(Droid.DroidColor))),
-                                                               new SelectionBox(DrawableElement.EDisplaySetting.INLINE, "Model:", Enum.GetNames(typeof(Droid.DroidModel))),
-                                                               new Spacer(1)
-                                                           };
-
-        // Elements representing a utility droid submenu
-        public static DrawableElement[] UtilityDroidMenu = {
-                                                               new Label(DrawableElement.EDisplaySetting.BLOCK, "Utility Droid Configuration"),
-                                                               new SelectionBox(DrawableElement.EDisplaySetting.INLINE, "Toolbox", getTrueFalseChoices()),
-
-
-                                                           };
-
-        // Returns an array for use in a true/false selection box
-        private static string[] getTrueFalseChoices()
-        {
-            return new string[2] {"true", "false"};      
-        }
-
+        public static DrawableElement[] GeneralDroidMenu;
 
         static void Main(string[] args)
         {
@@ -51,6 +27,9 @@ namespace cis237assignment3
 
             // Populate materials list
             populateMaterialsList();
+
+            // Populate droid menu
+            populateDroidMenu();
 
             // Initialize the console window
             UserInterface.InitializeConsoleWindow("Droid Maker v.0.1", ConsoleColor.Black, ConsoleColor.DarkYellow);
@@ -66,7 +45,9 @@ namespace cis237assignment3
                 {
                     // Add a droid
                     case 1:
-                        // todo: reference "add droid" method
+                        UserInterface.ClearScreen();
+
+                        UserInterface.HandleDrawableGroup(ref GeneralDroidMenu, ConsoleColor.White, ConsoleColor.Black);
                         break;
 
                     // List the droids
@@ -82,6 +63,12 @@ namespace cis237assignment3
 
             } while (true);
 
+        }
+
+        static void testMethod()
+        {
+            Console.WriteLine("Ayyy lmao");
+            Console.ReadKey(true);
         }
 
         private static string[] convertMaterialsListToStringArray(List<Material> materialsList) 
@@ -120,6 +107,33 @@ namespace cis237assignment3
             MaterialsList.Add(new Material("tricopper", 700));
             MaterialsList.Add(new Material("tungsten", 200));
             MaterialsList.Add(new Material("ultrachrome", 2400));
+        }
+
+        // Populate droid menu
+        private static void populateDroidMenu() {
+            GeneralDroidMenu = new DrawableElement[]
+            {
+                new Label(DrawableElement.EDisplaySetting.BLOCK, "DROID CONFIGURATION MENU"),
+                new Label(DrawableElement.EDisplaySetting.BLOCK, "Use the left and right keys to navigate, and the up and down keys to choose"),
+                new Spacer(),
+                new Label(DrawableElement.EDisplaySetting.BLOCK, "General Droid Configuration"),
+                new Spacer(),
+                new SelectionBox(DrawableElement.EDisplaySetting.INLINE, "Material:", convertMaterialsListToStringArray(MaterialsList)),
+                new SelectionBox(DrawableElement.EDisplaySetting.INLINE, "Color:", Enum.GetNames(typeof(Droid.DroidColor))),
+                new SelectionBox(DrawableElement.EDisplaySetting.INLINE, "Model:", Enum.GetNames(typeof(Droid.DroidModel))),
+                new Spacer(1),
+                new Label(DrawableElement.EDisplaySetting.INLINE, "This is a test"),
+                new Label(DrawableElement.EDisplaySetting.INLINE, "This is a test"),
+                new Label(DrawableElement.EDisplaySetting.INLINE, "This is a test"),
+                new Label(DrawableElement.EDisplaySetting.INLINE, "This is a test"),
+                new Label(DrawableElement.EDisplaySetting.INLINE, "This is a test")
+            };
+        }
+
+        // Returns an array for use in a true/false selection box
+        private static string[] getTrueFalseChoices()
+        {
+            return new string[2] { "true", "false" };
         }
     }
 }

@@ -12,13 +12,19 @@ namespace cis237assignment3
         public int AdditionalLines { get; set; }
 
         // Constructor (empty - all spacers are BLOCK and have no content)
-        public Spacer() : base(EDisplaySetting.BLOCK, "") { }
+        public Spacer() 
+            : base(DrawableElement.EDisplaySetting.BLOCK, "") 
+        {
+            this.DisplaySetting = DrawableElement.EDisplaySetting.BLOCK;
+            this.Label = " ";
+        }
 
         // Constructor - additional space
-        public Spacer(int additionalLines) :
-            base(EDisplaySetting.BLOCK, "")
+        public Spacer(int additionalLines) : base (EDisplaySetting.BLOCK, " ")
         {
             this.AdditionalLines = additionalLines;
+            this.DisplaySetting = DrawableElement.EDisplaySetting.BLOCK;
+            this.Label = " ";
         }
 
         // Returns width of the spacer

@@ -89,6 +89,10 @@ namespace cis237assignment3
                     }
                 }
 
+                // Add the length of the label to it, along with 1, to account for the space between the label and the select box next to it
+
+                longestStringLength += 1 + this.Label.Length;
+
                 return longestStringLength;
             }
         }

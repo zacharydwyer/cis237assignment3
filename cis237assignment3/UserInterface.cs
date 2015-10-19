@@ -19,6 +19,20 @@ namespace cis237assignment3
 
         #endregion
 
+        #region Utility Methods
+
+        /* RETURN "PRESS ANY KEY TO CONTINUE" PHRASE (EASIER TO TYPE THAN THE WHOLE THING; ENFORCES CONSISTENCY) */
+        public static string PressAnyPhrase()
+        {
+            return "Press any key to continue...";
+        }
+
+        /* RETURN APPENDED "PRESS ANY KEY TO CONTINUE" PHRASE ON A MESSAGE */
+        public static string PressAnyPhrase(string message)
+        {
+            return (message + " (Press any key to continue...)");
+        }
+
         /* INITIALIZE CONSOLE WINDOW */
         public static void InitializeConsoleWindow(string windowTitle, ConsoleColor backgroundColor, ConsoleColor foregroundColor)
         {
@@ -31,56 +45,6 @@ namespace cis237assignment3
             Console.WindowWidth = WINDOW_WIDTH;
         }
 
-        /* PRINTS MAIN MENU; RETURNS NUMERIC ANSWER */
-        public static int GetMainMenuSelection(string[] choices, string mainMenuTitle)
-        {
-            /* STEP 1: Make sure that the choices were no more than 9 (there are only 1 - 9 keys on the keyboard (not including a "choice 0")) */
-            if (choices.Length > 9)
-            {
-                throw new System.Exception("Max size of 'choices' is 9.");                              // Crash program if given an amount of choices less than 9 (1 - 9 keys on keyboard)
-            }
-
-            // Reset the screen
-            ClearScreen();
-
-            // Print the given main menu title                                                                  
-            Console.WriteLine(mainMenuTitle + Environment.NewLine);               
-
-            /* STEP 2: Print out every option given */
-            for (int i = 0; i < choices.Length; i++)                                                    
-            {
-                Console.WriteLine(" " + (i + 1) + " - " + choices[i]);                                        // Print out " # - Choice goes here"
-            }
-
-            // Holds the key that the user will hit
-            char hitKey;                                                                                
-
-            /* STEP 3: Loop until we get a valid answer out of the user */
-            do
-            {                                                                                           
-                UserInterface.SetStatus("Press a number key corresponding to the menu option.");
-
-                hitKey = Console.ReadKey(true).KeyChar;                                                 // Read the key the user pressed                               
-
-                // If the key that was hit was a number, and was between 1 and the last menu item in the choices array 
-                if (Char.IsNumber(hitKey) && (int.Parse(hitKey.ToString()) <= choices.Length) && (int.Parse(hitKey.ToString()) > 0))      
-                {
-                    // Choice was valid.
-                    break;      
-                }
-                else
-                {
-                    // Error - key was not recognized
-                    UserInterface.SetStatus("Key not recognized. (Press any key to continue)");
-                    Console.ReadKey(true);
-                }
-
-            } while (true);
-
-            // Return the number that corresponds to the key that was hit
-            return int.Parse(hitKey.ToString());
-        }
-
         // Columns 21 - 24 are reserved for the "status" which helps inform the user on what key to press/what to do next/what happened
 
         /* SET PROGRAM STATUS */
@@ -91,7 +55,7 @@ namespace cis237assignment3
             int cursorPosTop = Console.CursorTop;
 
             Console.SetCursorPosition(0, DEFAULT_STATUS_LINE_START);            // Set position of cursor
-            Console.WriteLine(" ----------------------");                       
+            Console.WriteLine(" ----------------------");
             ClearCurrentConsoleLine();                                          // Clear the existing status
             Console.WriteLine(" " + status);                                    // Write the new status
             Console.WriteLine(" ----------------------");
@@ -134,22 +98,276 @@ namespace cis237assignment3
             // Get the total width of the window
 
 
-            Console.SetCursorPosition(1, 8);            
-            
+            Console.SetCursorPosition(1, 8);
+
             // Calculate total width of window to be printed
             int totalWidthOfWindow = message.Length + 4;
-            
 
 
 
+            // todo: finish print window
             SetStatus(PressAnyPhrase());                        // Print "press any key"
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
             Console.ReadKey(true);
         }
 
+        /* CLEARS SCREEN & RESETS CURSOR*/
+        public static void ClearScreen()
+        {
+            Console.Clear();
+            Console.SetCursorPosition(1, 1);
+        }
+
+        /* HIGHLIGHTS MESSAGE THEN PUTS IT BACK TO NORMAL */
+        public static void HighlighterPrint(string phrase)
+        {
+            Console.BackgroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.Write(phrase);
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public static string PadBoth(string phrase, int totalSpacesLength)
+        {
+            int spaces = totalSpacesLength - phrase.Length;
+            int padLeftAmount = spaces / 2 + phrase.Length;
+            return phrase.PadLeft(padLeftAmount).PadRight(totalSpacesLength);
+        }
+
+        // Helpful method to help me round up to the nearest multiple of 5
+        private static int roundUp(int numberToRound, int multiple)
+        {
+            if (multiple == 0)
+            {
+                return numberToRound;
+            }
+
+            int remainder = numberToRound % multiple;
+            if (remainder == 0)
+            {
+                return numberToRound;
+            }
+
+            return numberToRound + multiple - remainder;
+        }
+
+        #endregion
+
+        #region Drawable Element Methods
+
+        /* PRINTS A GROUP OF DRAWABLES AND ALLOWS THE USER TO MANIPULATE THEM */
+        public static void HandleDrawableGroup(ref DrawableElement[] drawableElements, ConsoleColor consoleBackColor, ConsoleColor consoleTextColor)
+        {
+            // Holds the index of the currently focused on drawableElement (starts at 0)
+            int currentlySelectedIndex = 0;
+
+            // Holds the left and top coordinates respective to each drawableElement
+            int[] cursorLeftCoordinate = new int[drawableElements.Length];
+            int[] cursorTopCoordinate = new int[drawableElements.Length];
+
+            // Get the cursor coordinates that should be used to draw each element
+            setCoordinates(drawableElements, ref cursorLeftCoordinate, ref cursorTopCoordinate, 1, 1);
+
+            // Draw the elements.
+            drawElements(drawableElements, cursorLeftCoordinate, cursorTopCoordinate);
+
+            // Start interactivity
+
+
+        }
+
+        /* DRAWS A COLLECTION OF DRAWABLE ELEMENTS */
+        private static void drawElements(DrawableElement[] drawableElements, int[] cursorLeftCoordinate, int[] cursorTopCoordinate)
+        {
+
+
+
+            // Start drawing the elements
+
+            // For every DrawableElement in the drawableElements array
+            for (int index = 0; index < drawableElements.GetUpperBound(0); index++)
+            {
+                // Set the cursor position to this element's respective x and y coordinates
+                Console.SetCursorPosition(cursorLeftCoordinate[index], cursorTopCoordinate[index]);
+
+                // Handle drawing each element differently
+
+                // If it's a spacer
+                if (drawableElements[index] is Spacer)
+                {
+                    // Don't do anything! Spacers have nothing to write
+                }
+                else if (drawableElements[index] is Label)
+                {
+                    // It's a label - unbox it
+                    Label tempLabel = (Label)drawableElements[index];
+
+                    // Print out the label
+                    Console.Write(tempLabel.Label);
+                }
+                else if (drawableElements[index] is SelectionBox)
+                {
+                    // It's a selection box - unbox it
+                    SelectionBox tempSelectionBox = (SelectionBox)drawableElements[index];
+
+                    // Print out the selection box's label and selected choice
+                    Console.Write(tempSelectionBox.Label + " " + tempSelectionBox.Choices[tempSelectionBox.SelectedChoiceIndex]);
+                }
+            }
+
+            Console.ReadKey(true);
+
+        }
+
+        // Sets the coordinates that should be used to draw each element 
+        /*
+         *  Handles:
+         *      - Spacer
+         *      - Label
+         *      - SelectionBox
+         *      
+         *  Does not handle (in case added later):
+         *      - Text input elements
+         *      - Grouping elements
+         *  
+         */
+        private static void setCoordinates(
+            DrawableElement[] drawableElements,
+            ref int[] cursorLeftCoordinate,
+            ref int[] cursorTopCoordinate,
+            int startingLeft,
+            int startingTop)
+        {
+            int nextLeft = 1, nextTop = 1;          // Tracks left and top coordinate 
+
+            // Get the coordinate for every element in the collection - this will be used to draw it later on
+            for (int index = 0; index <= drawableElements.GetUpperBound(0); index++)
+            {
+                // Assign new nextLeft and nextTop values
+                cursorLeftCoordinate[index] = nextLeft;
+                cursorTopCoordinate[index] = nextTop;
+
+                // Is this a block element?
+                if (drawableElements[index].DisplaySetting == DrawableElement.EDisplaySetting.BLOCK)
+                {
+                    // Next element will be on a new line.  
+                    nextTop++;
+                    nextLeft = 1;
+
+                    // Is this a spacer?
+                    if (drawableElements[index] is Spacer)
+                    {
+                        // Cast it
+                        Spacer tempSpacer = (Spacer)drawableElements[index];
+
+                        // Does this spacer call for additional new lines?
+                        if (tempSpacer.AdditionalLines > 0)
+                        {
+                            // Add a new line for every additional space
+                            for (int spacesDone = 0; spacesDone < tempSpacer.AdditionalLines; spacesDone++)
+                            {
+                                // Increase line counter
+                                nextTop++;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // This element is inline
+
+                    // As long as this isn't the last element in the array...
+                    if (index != drawableElements.GetUpperBound(0))
+                    {
+                        // Determine the next x/left position, before rounding to the nearest tab position
+                        // nextLeft + drawableElements[index].Width = the cursor position marking the end of this element
+                        // + Minimum spaces between element = where we should start drawing the next element
+                        // (rounding it up to the nearest tab) = where we definitely should start drawing the next element
+                        int temporaryXCoordinate = nextLeft + drawableElements[index].Width + MINIMUM_SPACES_BETWEEN_ELEMENT;
+
+                        // Round the next x coordinate to the nearest tab position (tab positions are multiples of 5)
+                        temporaryXCoordinate = roundUp(temporaryXCoordinate, 5);
+
+                        //     /95     /100    
+                        // ELEMENT GOES HERE
+                        //             ^ HANGS OFF AT THIS POINT
+
+                        // If the next proposed position, PLUS the width of the NEXT element, is more than the window width...
+                        if ((temporaryXCoordinate + drawableElements[index + 1].Width) > WINDOW_WIDTH)
+                        {
+                            // Put this element on the next line (it will overflow over past the window width)
+                            nextTop++;
+                            nextLeft = 1;
+                        }
+                        else
+                        {
+                            // The next element will fit - assign it the coordinate
+                            nextLeft = temporaryXCoordinate;
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region Traditional Menu Methods
+
+        /* PRINTS MAIN MENU; RETURNS NUMERIC ANSWER */
+        public static int GetMainMenuSelection(string[] choices, string mainMenuTitle)
+        {
+            /* STEP 1: Make sure that the choices were no more than 9 (there are only 1 - 9 keys on the keyboard (not including a "choice 0")) */
+            if (choices.Length > 9)
+            {
+                throw new System.Exception("Max size of 'choices' is 9.");                              // Crash program if given an amount of choices less than 9 (1 - 9 keys on keyboard)
+            }
+
+            // Reset the screen
+            ClearScreen();
+
+            // Print the given main menu title                                                                  
+            Console.WriteLine(mainMenuTitle + Environment.NewLine);
+
+            /* STEP 2: Print out every option given */
+            for (int i = 0; i < choices.Length; i++)
+            {
+                Console.WriteLine(" " + (i + 1) + " - " + choices[i]);                                        // Print out " # - Choice goes here"
+            }
+
+            // Holds the key that the user will hit
+            char hitKey;
+
+            /* STEP 3: Loop until we get a valid answer out of the user */
+            do
+            {
+                UserInterface.SetStatus("Press a number key corresponding to the menu option.");
+
+                hitKey = Console.ReadKey(true).KeyChar;                                                 // Read the key the user pressed                               
+
+                // If the key that was hit was a number, and was between 1 and the last menu item in the choices array 
+                if (Char.IsNumber(hitKey) && (int.Parse(hitKey.ToString()) <= choices.Length) && (int.Parse(hitKey.ToString()) > 0))
+                {
+                    // Choice was valid.
+                    break;
+                }
+                else
+                {
+                    // Error - key was not recognized
+                    UserInterface.SetStatus("Key not recognized. (Press any key to continue)");
+                    Console.ReadKey(true);
+                }
+
+            } while (true);
+
+            // Return the number that corresponds to the key that was hit
+            return int.Parse(hitKey.ToString());
+        }
+
         /* ASKS USER A QUESTION AND RETURNS THE ANSWER */
-        public static string GetAnswerToQuestion(string query, string captionStatus, bool allowBlankAnswer) {
+        public static string GetAnswerToQuestion(string query, string captionStatus, bool allowBlankAnswer)
+        {
 
             string answer;                      // Holds the answer
             bool validAnswer = false;           // Holds status of answer validity
@@ -157,7 +375,7 @@ namespace cis237assignment3
             ClearScreen();                      // Reset the screen (console pos 1,1)
             Console.WriteLine(query);           // Print the question
             Console.CursorVisible = true;       // Make cursor visible
-            
+
             do
             {
                 SetStatus(captionStatus);           // Set the status to the caption (usually extra information like "the search term cannot be more than 100 characters")
@@ -172,7 +390,7 @@ namespace cis237assignment3
                     if (String.IsNullOrEmpty(answer))                                           // Check if it was blank
                     {
                         SetStatus("Answer must not be blank. (Press any key to continue).");    // The answer was blank. 
-                        Console.ReadKey(true);                                                  
+                        Console.ReadKey(true);
                     }
                     else
                     {
@@ -225,12 +443,12 @@ namespace cis237assignment3
                                 SetStatus(PressAnyPhrase("Answer must be a whole number between " + lowestAllowed + " and " + highestAllowed + "."));
                                 Console.ReadKey(true);
                             }
-                            else 
+                            else
                             {
                                 validAnswer = true;                                             // Answer was numeric
                             }
                         }
-                        else 
+                        else
                         {
                             validAnswer = true;                                                 // They did not require a numeric answer, but the answer was not blank
                         }
@@ -247,26 +465,11 @@ namespace cis237assignment3
             return answer;                      // Finally, give them the answer that the user entered.
         }
 
-        /* CLEARS SCREEN & RESETS CURSOR*/
-        public static void ClearScreen()
-        {
-            Console.Clear();
-            Console.SetCursorPosition(1, 1);
-        }
+        #endregion
 
-        /* RETURN "PRESS ANY KEY TO CONTINUE" PHRASE (EASIER TO TYPE THAN THE WHOLE THING; ENFORCES CONSISTENCY) */
-        public static string PressAnyPhrase()
-        {
-            return "Press any key to continue...";
-        }
+        #region Droid Assignment Specific Methods
 
-        /* RETURN APPENDED "PRESS ANY KEY TO CONTINUE" PHRASE ON A MESSAGE */
-        public static string PressAnyPhrase(string message)
-        {
-            return (message + " (Press any key to continue...)");
-        }
-
-        /* PRINT WINE ITEM LIST */
+        /* PRINT DROID LIST */
         public static void PrintDroidList(List<Droid> droidList)
         {
             // If the droidList is empty
@@ -284,109 +487,11 @@ namespace cis237assignment3
             }
 
             SetStatus(PressAnyPhrase("List printed!"));
-
-            
         }
 
-        /* DRAWS A COLLECTION OF DRAWABLE ELEMENTS */
-        public static void DrawElements(DrawableElement[] drawableElements)
-        {
-            // The index of the drawable element currently selected
-            int currentlySelectedIndex = 0;       
+        #endregion
 
-            // The x coordinate of the respective draw element, indicated by the index
-            int[] cursorLeftCoordinate = new int[drawableElements.Length];
-
-            // The y coordinate of the respective draw element, indicated by the index
-            int[] cursorTopCoordinate = new int[drawableElements.Length];
-
-            // Set appropriate drawing coordinates for each element
-            setCoordinates(drawableElements, ref cursorLeftCoordinate, ref cursorTopCoordinate);
-            
-
-            
-
-        }
-
-        // PASSED BY REFERENCE
-        // Sets the drawing coordinates of each respective element. 
-        /*
-         *  Rules:
-         *      - Every time a drawable element is printed, it is given a margin on the left of 3 spaces.
-         *      - Then, when deciding where the print coordinate of an element is, it must start on one of the "tab coordinates", in this case multiples of 5. 
-         * 
-        */
-        private static void setCoordinates(DrawableElement[] drawableElements, ref int[] cursorLeftCoordinate, ref int[] cursorTopCoordinate)
-        {
-            // Keep track of the x and y coordinate to give the next element in the list (the first element to be drawn on the screen will be at 1, 1)
-            int nextLeft = 1, nextTop = 1;
-
-            // Get the coordinate for every element in the collection - this will be used to draw it later on
-            for (int index = 0; index <= drawableElements.GetUpperBound(0); index++)
-            {
-                // Assign new nextLeft and nextTop values
-                cursorLeftCoordinate[index] = nextLeft;
-                cursorTopCoordinate[index] = nextTop;
-
-                // Is this a block element?
-                if (drawableElements[index].DisplaySetting == DrawableElement.EDisplaySetting.BLOCK)
-                {
-                    // Next element will be on a new line.  
-                    nextTop++;
-                    nextLeft = 1;
-
-                    // Is this a spacer?
-                    if (drawableElements[index] is Spacer)
-                    {
-                        // Cast it
-                        Spacer tempSpacer = (Spacer)drawableElements[index];
-
-                        // Does this spacer call for additional new lines?
-                        if (tempSpacer.AdditionalLines > 0)
-                        {
-                            // Add a new line for every additional space
-                            for (int spacesDone = 0; spacesDone < tempSpacer.AdditionalLines; spacesDone++)
-                            {
-                                // Increase line counter
-                                nextTop++;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // This element is inline
-
-                    // As long as this isn't the last element in the array...
-                    if (index != drawableElements.GetUpperBound(0))
-                    {
-                        // Determine the next x/left position, before rounding to the nearest tab position
-                        int temporaryXCoordinate = nextLeft + drawableElements[index].Width + MINIMUM_SPACES_BETWEEN_ELEMENT;
-
-                        // Round the next x coordinate to the nearest tab position (tab positions are multiples of 5)
-                        temporaryXCoordinate = roundUp(temporaryXCoordinate, 5);
-
-                        //     /95     /100    
-                        // ELEMENT GOES HERE
-                        //             ^ HANGS OFF AT THIS POINT
-
-                        // If the next position, PLUS the width of the element, is more than the window width...
-                        if ((temporaryXCoordinate + drawableElements[index + 1].Width) > WINDOW_WIDTH)
-                        {
-                            // Put this element on the next line
-                            nextTop++;
-                            nextLeft = 1;
-                        }
-                        else
-                        {
-                            // The element will fit - assign it this coordinate
-                            nextLeft = temporaryXCoordinate;
-                        }
-                    }
-                }
-            }
-        }
-
+        #region Wine Item Assignment Specific Methods (Commented Out)
 
         //public static void PrintWineItems(int maxLinesPerPage)
         //{
@@ -485,38 +590,6 @@ namespace cis237assignment3
         //    }
         //}
 
-        /* HIGHLIGHTS MESSAGE THEN PUTS IT BACK TO NORMAL */
-        public static void HighlighterPrint(string phrase)
-        {
-            Console.BackgroundColor = ConsoleColor.Yellow;
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.Write(phrase);
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.ForegroundColor = ConsoleColor.White;
-        }
-
-        public static string PadBoth(string phrase, int totalSpacesLength)
-        {
-            int spaces = totalSpacesLength - phrase.Length;
-            int padLeftAmount = spaces / 2 + phrase.Length;
-            return phrase.PadLeft(padLeftAmount).PadRight(totalSpacesLength);
-        }
-
-        // Helpful method to help me round up to the nearest multiple of 5
-        private static int roundUp(int numberToRound, int multiple)
-        {
-            if (multiple == 0)
-            {
-                return numberToRound;
-            }
-
-            int remainder = numberToRound % multiple;
-            if (remainder == 0)
-            {
-                return numberToRound;
-            }
-
-            return numberToRound + multiple - remainder;
-        }
+        #endregion
     }
 }
