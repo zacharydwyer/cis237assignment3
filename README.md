@@ -2,7 +2,7 @@
 ## Due: 10-20-2015
 
 ## Author
-
+Zachary Dwyer
 
 
 ## Description
@@ -92,6 +92,21 @@ If you did not do well on Assignment 1, you may want to look at the Assignment 1
 It may be benificial for you to create extra methods within the droid sub classes. You are not limited to the ones mentioned. You may even find it useful to make some additional ones that are protected and virtual.
 
 ## Outside Resources Used
+http://stackoverflow.com/questions/17590528/pad-left-pad-right-pad-center-string
+- How to pad a string left and right
+
+http://stackoverflow.com/questions/1167361/how-do-i-convert-an-enum-to-a-list-in-c
+- How to convert an enum to a list
+
+http://stackoverflow.com/questions/3407012/c-rounding-up-to-the-nearest-multiple-of-a-number
+- Round a number to the nearest multiple of 5
+
+http://stackoverflow.com/questions/14450213/converting-a-list-of-strings-to-an-array-using-toarray
+- Converting a list to an array
+
+http://stackoverflow.com/questions/14971631/convert-an-enum-to-liststring
+- Convert an enum to a string array
+
 
 
 
