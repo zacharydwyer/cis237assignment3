@@ -12,7 +12,7 @@ namespace cis237assignment3
         public Label(EDisplaySetting displaySetting, string label)
             : base(displaySetting, label) { }
 
-        // Again, the same as DrawableElement
+        // A label's width is determined by the content inside of it
         public override int Width
         {
             get

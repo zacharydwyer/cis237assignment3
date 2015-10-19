@@ -12,10 +12,15 @@ namespace cis237assignment3
     {
         #region Class Variables & Constants
 
+        public static ConsoleColor defaultBackColor = ConsoleColor.Black;
+        public static ConsoleColor defaultForeColor = ConsoleColor.White;
+        public static ConsoleColor highlightedBackColor = ConsoleColor.White;
+        public static ConsoleColor highlightedForeColor = ConsoleColor.Black;
+
         private const int DEFAULT_STATUS_LINE_START = 22;       // Default line to start drawing the "status box"
         private const int WINDOW_HEIGHT = 26;
         private const int WINDOW_WIDTH = 100;
-        private const int MINIMUM_SPACES_BETWEEN_ELEMENT = 3;   
+        private const int MINIMUM_SPACES_BETWEEN_ELEMENT = 3;
 
         #endregion
 
@@ -34,11 +39,11 @@ namespace cis237assignment3
         }
 
         /* INITIALIZE CONSOLE WINDOW */
-        public static void InitializeConsoleWindow(string windowTitle, ConsoleColor backgroundColor, ConsoleColor foregroundColor)
+        public static void InitializeConsoleWindow(string windowTitle)
         {
             Console.Title = windowTitle;                                        // Set title
-            Console.BackgroundColor = backgroundColor;                          // Set back and foreground colors of console window
-            Console.ForegroundColor = foregroundColor;
+            Console.BackgroundColor = defaultBackColor;                          // Set back and foreground colors of console window
+            Console.ForegroundColor = defaultForeColor;
             Console.CursorVisible = false;                                      // Do not show the cursor (this is a press-a-key kinda UI not a type-it-in)
             Console.Clear();                                                    // Resets console window which in turn applies the new specified colors
             Console.WindowHeight = WINDOW_HEIGHT;
@@ -120,13 +125,13 @@ namespace cis237assignment3
         }
 
         /* HIGHLIGHTS MESSAGE THEN PUTS IT BACK TO NORMAL */
-        public static void HighlighterPrint(string phrase)
+        public static void HighlighterPrint(string text)
         {
-            Console.BackgroundColor = ConsoleColor.Yellow;
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.Write(phrase);
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.BackgroundColor = highlightedBackColor;
+            Console.ForegroundColor = highlightedForeColor;
+            Console.Write(text);
+            Console.BackgroundColor = defaultBackColor;
+            Console.ForegroundColor = defaultForeColor;
         }
 
         public static string PadBoth(string phrase, int totalSpacesLength)
@@ -158,8 +163,15 @@ namespace cis237assignment3
         #region Drawable Element Methods
 
         /* PRINTS A GROUP OF DRAWABLES AND ALLOWS THE USER TO MANIPULATE THEM */
-        public static void HandleDrawableGroup(ref DrawableElement[] drawableElements, ConsoleColor consoleBackColor, ConsoleColor consoleTextColor)
+        public static void HandleDrawableGroup(ref DrawableElement[] drawableElements, ConsoleColor highlightBackColor, ConsoleColor highlightTextColor)
         {
+            // First, resize the array and add a submit button to this drawable elements collection
+            #region Resize Array and Add Submit Button
+            int newLargerSize = drawableElements.Length + 1;                                                                        // Holds new larger size
+            Array.Resize<DrawableElement>(ref drawableElements, newLargerSize);                                                     // Resize the array
+            drawableElements[drawableElements.GetUpperBound(0)] = new Button(DrawableElement.EDisplaySetting.BLOCK, "Submit");      // Add the element at the end of the array
+            #endregion
+
             // Holds the index of the currently focused on drawableElement (starts at 0)
             int currentlySelectedIndex = 0;
 
@@ -173,17 +185,148 @@ namespace cis237assignment3
             // Draw the elements.
             drawElements(drawableElements, cursorLeftCoordinate, cursorTopCoordinate);
 
-            // Start interactivity
+            // Get a keystroke and apply 
+            while (true)
+            {
+                // Wait until the user hits a key
+                ConsoleKey keyHitByUser = Console.ReadKey(true).Key;
+
+                // Handle the navigation between elements
+                #region Handle Right Arrow
+                // Was it the right arrow?
+                if (keyHitByUser == ConsoleKey.RightArrow)
+                {
+
+                    // Get the NEXT valid selectable element, starting with the one that is currently selected
+
+                    // The previous currentlySelectedIndex was the index they were just on. Increment by one to start off.
+                    int index = currentlySelectedIndex + 1;
+                    bool nextIndexFound = false;
+
+                    while (index <= drawableElements.GetUpperBound(0) && nextIndexFound == false)
+                    {
+
+                        // Is this element selectable?
+                        if (drawableElements[index].IsSelectable)
+                        {
+                            // We found a selectable element
+                            nextIndexFound = true;
+
+                            // Set the currentlySelectedIndex to the newly found index
+                            currentlySelectedIndex = index;
+                        }
+                        else
+                        {
+                            // The element wasn't selectable.
+
+                            // Is the current index we just looked at equal to the max index of the drawable elements?
+                            if (index == drawableElements.GetUpperBound(0))
+                            {
+                                // Reset the index (will be 0 in this case, just used GetLowerBound to convey the idea of what is happening)
+                                index = drawableElements.GetLowerBound(0);
+                            }
+                            else
+                            {
+                                // Wasn't the max index. Increment by one. We are still looking.
+                                index++;
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                #region Handle Left Arrow
+                // Was it the left arrow?
+                if (keyHitByUser == ConsoleKey.LeftArrow)
+                {
+
+                    // Get the PREVIOUS valid selectable element, starting with the one that is currently selected
+
+                    // The state of currentlySelectedIndex refers to the element that the user was just on. Decrement by one to get the ball rolling. 
+                    int index = currentlySelectedIndex - 1;
+                    bool prevIndexFound = false;
+
+                    while (index >= drawableElements.GetLowerBound(0) && prevIndexFound == false)
+                    {
+
+                        // Is this element selectable?
+                        if (drawableElements[index].IsSelectable)
+                        {
+                            // We found a selectable element
+                            prevIndexFound = true;
+
+                            // Set the currentlySelectedIndex to the newly found index
+                            currentlySelectedIndex = index;
+                        }
+                        else
+                        {
+                            // The element wasn't selectable.
+
+                            // Is the current index we just looked at equal to the lowest index of the drawable elements?
+                            if (index == drawableElements.GetLowerBound(0))
+                            {
+                                // Reset the index to the highest available index
+                                index = drawableElements.GetUpperBound(0);
+                            }
+                            else
+                            {
+                                // Wasn't the max index. Decrement by one.
+                                index--;
+                            }
+                        }
+                    }
+                }
+                #endregion
 
 
+                // Handle the selection of different choices in a Selection Box
+
+                // Is this a SelectionBox?
+                if (drawableElements[currentlySelectedIndex] is SelectionBox)
+                {
+                    #region Handle Up Arrow
+
+                    if (keyHitByUser == ConsoleKey.UpArrow)
+                    {
+                        // Increment the selection in the selection box
+                        ((SelectionBox)drawableElements[currentlySelectedIndex]).IncrementSelection();
+
+                        // (will be redrawn later)
+                    }
+
+                    #endregion
+
+                    #region Handle Down Arrow
+
+                    if (keyHitByUser == ConsoleKey.DownArrow)
+                    {
+                        // Decrement the selection in the selection box
+                        ((SelectionBox)drawableElements[currentlySelectedIndex]).DecrementSelection();
+
+                        // (will be redrawn later)
+                    }
+
+                    #endregion
+                }
+
+                #region Handle Enter Button
+
+                // Is this a button?
+                if (drawableElements[currentlySelectedIndex] is Button)
+                {
+                    // Activate it!
+                    Button tempButton = (Button)drawableElements[currentlySelectedIndex];
+                    tempButton.PerformClick();
+                }
+
+                #endregion
+
+            }
         }
 
         /* DRAWS A COLLECTION OF DRAWABLE ELEMENTS */
         private static void drawElements(DrawableElement[] drawableElements, int[] cursorLeftCoordinate, int[] cursorTopCoordinate)
         {
-
-
-
             // Start drawing the elements
 
             // For every DrawableElement in the drawableElements array

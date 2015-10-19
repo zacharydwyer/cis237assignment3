@@ -32,7 +32,7 @@ namespace cis237assignment3
             populateDroidMenu();
 
             // Initialize the console window
-            UserInterface.InitializeConsoleWindow("Droid Maker v.0.1", ConsoleColor.Black, ConsoleColor.DarkYellow);
+            UserInterface.InitializeConsoleWindow("Droid Creator");
 
             // Main program loop
             do

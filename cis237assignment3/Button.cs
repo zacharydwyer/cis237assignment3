@@ -24,7 +24,7 @@ namespace cis237assignment3
         // Overloaded constructor
         public Button(EDisplaySetting displaySetting, string label, ClickMethod onClickMethod) : this (displaySetting, label)
         {
-            
+            this.OnClick = onClickMethod;
         }
 
         // The width of a button is just the length of its label
