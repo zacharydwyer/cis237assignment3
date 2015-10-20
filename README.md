@@ -107,6 +107,9 @@ http://stackoverflow.com/questions/14450213/converting-a-list-of-strings-to-an-a
 http://stackoverflow.com/questions/14971631/convert-an-enum-to-liststring
 - Convert an enum to a string array
 
+http://stackoverflow.com/questions/9991623/what-is-the-best-type-to-hold-an-ordered-pair-of-values-of-the-same-type-in-c
+- Idea for creating ConsoleCoordinate class
+
 
 
 

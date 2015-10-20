@@ -4,27 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace cis237assignment3
+namespace ConsoleUI
 {
     // A spacer represents a blank line (or more, with AdditionalSpaces) in a layout of drawable elements.
-    class Spacer : DrawableElement
+    class Spacer : UIElement
     {
         public int AdditionalLines { get; set; }
 
         // Constructor (empty - all spacers are BLOCK and have no content)
         public Spacer() 
-            : base(DrawableElement.EDisplaySetting.BLOCK, "") 
+            : base(UIElement.EDisplaySetting.BLOCK, "") 
         {
-            this.DisplaySetting = DrawableElement.EDisplaySetting.BLOCK;
-            this.Label = " ";
+            this.DisplaySetting = UIElement.EDisplaySetting.BLOCK;
+            this.Title = " ";
         }
 
-        // Constructor - additional space
+        // Constructor for specifying additional spaces
         public Spacer(int additionalLines) : base (EDisplaySetting.BLOCK, " ")
         {
             this.AdditionalLines = additionalLines;
-            this.DisplaySetting = DrawableElement.EDisplaySetting.BLOCK;
-            this.Label = " ";
+            this.DisplaySetting = UIElement.EDisplaySetting.BLOCK;
+            this.Title = " ";
         }
 
         // Returns width of the spacer

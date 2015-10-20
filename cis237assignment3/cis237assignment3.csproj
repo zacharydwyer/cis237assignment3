@@ -41,18 +41,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Button.cs" />
-    <Compile Include="DrawableElement.cs" />
-    <Compile Include="Label.cs" />
-    <Compile Include="Droid.cs" />
-    <Compile Include="DroidCollection.cs" />
-    <Compile Include="IDroid.cs" />
-    <Compile Include="Material.cs" />
+    <Compile Include="ConsoleUI\Button.cs" />
+    <Compile Include="ConsoleUI\UIElement.cs" />
+    <Compile Include="ConsoleUI\Label.cs" />
+    <Compile Include="ConsoleUI\UIMenu.cs" />
+    <Compile Include="DroidPack\AstromechDroid.cs" />
+    <Compile Include="DroidPack\Droid.cs" />
+    <Compile Include="DroidPack\DroidCollection.cs" />
+    <Compile Include="DroidPack\IDroid.cs" />
+    <Compile Include="DroidPack\JanitorDroid.cs" />
+    <Compile Include="DroidPack\UtilityDroid.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ProtocolDroid.cs" />
-    <Compile Include="SelectionBox.cs" />
-    <Compile Include="Spacer.cs" />
+    <Compile Include="DroidPack\ProtocolDroid.cs" />
+    <Compile Include="ConsoleUI\SelectionBox.cs" />
+    <Compile Include="ConsoleUI\Spacer.cs" />
     <Compile Include="UserInterface.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace cis237assignment3
+namespace DroidPack
 {
-    class DroidCollection
+    interface IDroid
     {
-        public static List<Droid> DroidList = new List<Droid>();
+        void CalculateTotalCost();
 
-
+        decimal TotalCost { get; set; }
     }
 }
